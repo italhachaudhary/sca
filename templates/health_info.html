@@ -1,0 +1,79 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="main-container w-full max-w-lg p-8 space-y-6 rounded-xl shadow-lg">
+  <h3 class="text-2xl font-bold text-center">Basic Health Information</h3>
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="p-3 my-4 rounded-lg {% if category == 'error' %} bg-red-500 text-white {% else %} bg-blue-500 text-white {% endif %}"
+  >
+    {{ message }}
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+  <form action="{{ url_for('symptoms_page') }}" method="post" class="space-y-4">
+    <div>
+      <label for="age" class="block text-sm font-medium text-gray-300 mb-1"
+        >Age</label
+      >
+      <input
+        type="number"
+        id="age"
+        name="age"
+        class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+        required
+      />
+    </div>
+    <div>
+      <label for="gender" class="block text-sm font-medium text-gray-300 mb-1"
+        >Gender</label
+      >
+      <select
+        id="gender"
+        name="gender"
+        class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+      >
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="flex items-center justify-between pt-2">
+      <span class="text-gray-300">Do you smoke?</span>
+      <label class="switch"
+        ><input type="checkbox" id="smoke" name="smoke" /><span
+          class="slider"
+        ></span
+      ></label>
+    </div>
+    <div class="flex items-center justify-between">
+      <span class="text-gray-300">Do you have high cholesterol?</span>
+      <label class="switch"
+        ><input type="checkbox" id="cholesterol" name="cholesterol" /><span
+          class="slider"
+        ></span
+      ></label>
+    </div>
+    <div class="flex items-center justify-between">
+      <span class="text-gray-300">Do you have high/low blood pressure?</span>
+      <label class="switch"
+        ><input type="checkbox" id="pressure" name="pressure" /><span
+          class="slider"
+        ></span
+      ></label>
+    </div>
+    <div class="flex items-center justify-between">
+      <span class="text-gray-300">Do you have diabetes?</span>
+      <label class="switch"
+        ><input type="checkbox" id="diabetes" name="diabetes" /><span
+          class="slider"
+        ></span
+      ></label>
+    </div>
+    <button
+      type="submit"
+      class="w-full btn-primary text-white font-bold py-3 rounded-lg mt-4"
+    >
+      Next
+    </button>
+  </form>
+</div>
+{% endblock %}

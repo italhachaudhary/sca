@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Powered Symptom Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #111827;
+        color: #f9fafb;
+      }
+      .main-container {
+        background-color: #1f2937;
+        border: 1px solid #374151;
+      }
+      .btn-primary {
+        background-color: #3b82f6;
+        transition: background-color 0.3s ease;
+      }
+      .btn-primary:hover {
+        background-color: #2563eb;
+      }
+      .btn-secondary {
+        background-color: #4b5563;
+        transition: background-color 0.3s ease;
+      }
+      .btn-secondary:hover {
+        background-color: #374151;
+      }
+      .btn-danger {
+        background-color: #ef4444;
+        transition: background-color 0.3s ease;
+      }
+      .btn-danger:hover {
+        background-color: #dc2626;
+      }
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #4b5563;
+        transition: 0.4s;
+        border-radius: 28px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #3b82f6;
+      }
+      input:checked + .slider:before {
+        transform: translateX(22px);
+      }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <nav class="bg-[#111827] shadow-md w-full p-4 sticky top-0 z-50">
+      <div class="container mx-auto flex justify-between items-center">
+        <a
+          href="{{ url_for('index') }}"
+          class="text-xl md:text-2xl font-bold text-white"
+          >AI Symptom Checker</a
+        >
+        {% if session.user %}
+        <div class="flex items-center space-x-4">
+          <img
+            class="w-10 h-10 rounded-full"
+            src="{{ session.user.picture }}"
+            alt="User Photo"
+          />
+          <span class="text-white font-medium">{{ session.user.name }}</span>
+          {% if session.user.get('is_guest') %}
+          <a
+            href="{{ url_for('login_page') }}"
+            class="btn-primary text-white font-bold py-2 px-4 rounded-lg"
+            >Login</a
+          >
+          {% else %}
+          <button
+            id="open-logout-modal-btn"
+            class="btn-danger text-white font-bold py-2 px-4 rounded-lg"
+          >
+            Logout
+          </button>
+          {% endif %}
+        </div>
+        {% else %}
+        <div>
+          <a
+            href="{{ url_for('login_page') }}"
+            class="btn-primary text-white font-bold py-2 px-4 rounded-lg"
+            >Login</a
+          >
+        </div>
+        {% endif %}
+      </div>
+    </nav>
+
+    <main
+      class="flex-grow container mx-auto p-4 flex items-center justify-center"
+    >
+      {% block content %}{% endblock %}
+    </main>
+
+    {% if session.user %}
+    <footer class="p-4 bg-[#111827] w-full text-center">
+      <a
+        href="{{ url_for('index') }}"
+        class="btn-primary text-white font-bold py-2 px-6 rounded-lg mr-4"
+        >New Check</a
+      >
+      {% if not session.user.get('is_guest') %}
+      <a
+        href="{{ url_for('history') }}"
+        class="btn-secondary text-white font-bold py-2 px-6 rounded-lg"
+        >View History</a
+      >
+      {% endif %}
+    </footer>
+    {% endif %}
+
+    <!-- Logout Confirmation Modal -->
+    <div
+      id="logout-modal"
+      class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm text-center border border-gray-700"
+      >
+        <h3 class="text-2xl font-bold text-white mb-4">Confirm Logout</h3>
+        <p class="text-gray-300 mb-6">Are you sure you want to log out?</p>
+        <div class="flex justify-center space-x-4">
+          <button
+            id="cancel-logout-btn"
+            class="btn-secondary text-white font-bold py-2 px-6 rounded-lg"
+          >
+            Cancel
+          </button>
+          <a
+            href="{{ url_for('logout') }}"
+            class="btn-danger text-white font-bold py-2 px-6 rounded-lg"
+            >Yes, Logout</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const openLogoutModalBtn = document.getElementById(
+          "open-logout-modal-btn"
+        );
+        const cancelLogoutBtn = document.getElementById("cancel-logout-btn");
+        const logoutModal = document.getElementById("logout-modal");
+
+        if (openLogoutModalBtn) {
+          openLogoutModalBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            logoutModal.classList.remove("hidden");
+          });
+        }
+
+        if (cancelLogoutBtn) {
+          cancelLogoutBtn.addEventListener("click", () => {
+            logoutModal.classList.add("hidden");
+          });
+        }
+
+        if (logoutModal) {
+          logoutModal.addEventListener("click", (event) => {
+            if (event.target === logoutModal) {
+              logoutModal.classList.add("hidden");
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

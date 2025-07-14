@@ -1,0 +1,166 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="main-container w-full max-w-2xl p-8 space-y-6 rounded-xl shadow-lg">
+  <!-- Tab Navigation -->
+  <div class="border-b border-gray-600">
+    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+      <button
+        id="tab-describe"
+        class="tab-btn shrink-0 border-b-2 border-blue-500 px-1 pb-4 text-sm font-medium text-blue-500"
+        aria-current="page"
+      >
+        Describe Symptoms (AI)
+      </button>
+      <button
+        id="tab-search"
+        class="tab-btn shrink-0 border-b-2 border-transparent px-1 pb-4 text-sm font-medium text-gray-400 hover:border-gray-500 hover:text-gray-300"
+      >
+        Search Symptoms (Model)
+      </button>
+    </nav>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="p-3 my-2 rounded-lg {% if category == 'error' %} bg-red-500 text-white {% else %} bg-blue-500 text-white {% endif %}"
+  >
+    {{ message }}
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <!-- Tab Content: Describe Symptoms -->
+  <div id="content-describe" class="tab-content">
+    <p class="text-center text-gray-400 mb-4">
+      Be as detailed as possible. This uses a large language model for analysis.
+    </p>
+    <form action="{{ url_for('analyze') }}" method="post">
+      <div>
+        <label
+          for="symptoms-text"
+          class="block text-sm font-medium text-gray-300 mb-1"
+          >Your Symptoms</label
+        >
+        <textarea
+          id="symptoms-text"
+          name="symptoms"
+          rows="8"
+          class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:ring-blue-500 focus:border-blue-500"
+          required
+        ></textarea>
+      </div>
+      <div class="flex justify-between items-center mt-6">
+        <a
+          href="{{ url_for('index') }}"
+          class="btn-secondary text-white font-bold py-3 px-8 rounded-lg"
+          >Back</a
+        >
+        <button
+          type="submit"
+          class="btn-primary text-white font-bold py-3 px-8 rounded-lg"
+        >
+          Analyze Symptoms
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tab Content: Search Symptoms -->
+  <div id="content-search" class="tab-content hidden">
+    <p class="text-center text-gray-400 mb-4">
+      Search for and select your symptoms from the list below to use the
+      custom-trained model.
+    </p>
+    <form action="{{ url_for('analyze_model') }}" method="post">
+      <!-- Search Input -->
+      <input
+        type="text"
+        id="symptom-search"
+        placeholder="Search for a symptom..."
+        class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white mb-4 focus:ring-blue-500 focus:border-blue-500"
+      />
+
+      <!-- Symptom Checkbox List -->
+      <div
+        id="symptoms-list"
+        class="max-h-60 overflow-y-auto space-y-2 p-3 border border-gray-600 rounded-lg"
+      >
+        {% if symptoms %} {% for symptom in symptoms %}
+        <label class="flex items-center text-white symptom-item">
+          <input
+            type="checkbox"
+            name="symptoms"
+            value="{{ symptom }}"
+            class="h-4 w-4 rounded border-gray-500 bg-gray-700 text-blue-600 focus:ring-blue-500"
+          />
+          <span class="ml-3 text-sm">{{ symptom }}</span>
+        </label>
+        {% endfor %} {% else %}
+        <p class="text-gray-400">Symptom list could not be loaded.</p>
+        {% endif %}
+      </div>
+
+      <div class="flex justify-between items-center mt-6">
+        <a
+          href="{{ url_for('index') }}"
+          class="btn-secondary text-white font-bold py-3 px-8 rounded-lg"
+          >Back</a
+        >
+        <button
+          type="submit"
+          class="btn-primary text-white font-bold py-3 px-8 rounded-lg"
+        >
+          Analyze Symptoms
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabDescribeBtn = document.getElementById("tab-describe");
+    const tabSearchBtn = document.getElementById("tab-search");
+    const contentDescribe = document.getElementById("content-describe");
+    const contentSearch = document.getElementById("content-search");
+    const searchInput = document.getElementById("symptom-search");
+    const symptomsList = document.getElementById("symptoms-list");
+    const symptomItems = symptomsList.querySelectorAll(".symptom-item");
+
+    function switchTab(activeBtn, inactiveBtn, activeContent, inactiveContent) {
+      activeBtn.classList.add("border-blue-500", "text-blue-500");
+      activeBtn.classList.remove("border-transparent", "text-gray-400");
+      activeBtn.setAttribute("aria-current", "page");
+
+      inactiveBtn.classList.remove("border-blue-500", "text-blue-500");
+      inactiveBtn.classList.add("border-transparent", "text-gray-400");
+      inactiveBtn.removeAttribute("aria-current");
+
+      activeContent.classList.remove("hidden");
+      inactiveContent.classList.add("hidden");
+    }
+
+    tabDescribeBtn.addEventListener("click", () => {
+      switchTab(tabDescribeBtn, tabSearchBtn, contentDescribe, contentSearch);
+    });
+
+    tabSearchBtn.addEventListener("click", () => {
+      switchTab(tabSearchBtn, tabDescribeBtn, contentSearch, contentDescribe);
+    });
+
+    // Symptom search functionality
+    searchInput.addEventListener("keyup", () => {
+      const filter = searchInput.value.toLowerCase();
+      symptomItems.forEach((item) => {
+        const label =
+          item.querySelector("span").textContent ||
+          item.querySelector("span").innerText;
+        if (label.toLowerCase().indexOf(filter) > -1) {
+          item.style.display = "";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

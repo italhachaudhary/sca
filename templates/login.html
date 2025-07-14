@@ -1,0 +1,47 @@
+{% extends 'layout.html' %} {% block content %}
+<div
+  class="main-container w-full max-w-md p-8 space-y-6 rounded-xl shadow-lg text-center"
+>
+  <div class="flex justify-center">
+    <div class="bg-blue-500 p-3 rounded-full">
+      <svg
+        class="w-8 h-8 text-white"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
+    </div>
+  </div>
+  <h2 class="text-3xl font-bold">AI Powered Symptom Checker</h2>
+  <p class="text-gray-400">
+    Sign in to save your history and get personalized health insights.
+  </p>
+  <a
+    href="{{ url_for('google_login') }}"
+    class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center"
+  >
+    <img
+      src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+      class="w-6 h-6 mr-2"
+      alt="Google icon"
+    />
+    Sign in with Google
+  </a>
+  <a
+    href="{{ url_for('guest_login') }}"
+    class="w-full text-gray-300 hover:text-white py-2 mt-2 inline-block"
+    >Continue as Guest</a
+  >
+  <p class="text-xs text-gray-500 mt-4">
+    By continuing, you agree to our Terms of Service and Privacy Policy.
+  </p>
+</div>
+{% endblock %}
